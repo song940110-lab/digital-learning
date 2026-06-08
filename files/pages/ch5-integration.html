@@ -1,0 +1,1990 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ch5 — 系統整合 | AI MeetingDoc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@300;400;500&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ===== RESET & BASE ===== */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0d0f14;
+        --bg2: #13161e;
+        --bg3: #1a1e28;
+        --border: rgba(255, 255, 255, 0.08);
+        --border2: rgba(255, 255, 255, 0.14);
+        --text: #e8eaf0;
+        --text2: #8b909e;
+        --text3: #555a6a;
+        --accent: #4f9eff;
+        --accent2: #7b61ff;
+        --green: #34d58f;
+        --amber: #f5a623;
+        --coral: #ff6b6b;
+        --teal: #2dd4bf;
+        --ch1: #4f9eff;
+        --ch2: #2dd4bf;
+        --ch3: #f5a623;
+        --ch4: #ff6b6b;
+        --ch5: #34d58f;
+        --font-display: "Noto Serif TC", serif;
+        --font-body: "Noto Sans TC", sans-serif;
+        --font-mono: "JetBrains Mono", monospace;
+        --r: 10px;
+        --r-lg: 16px;
+        --transition: 0.25s ease;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 16px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+      ul {
+        list-style: none;
+      }
+
+      /* ===== NAVBAR ===== */
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(13, 15, 20, 0.92);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--text);
+        white-space: nowrap;
+      }
+
+      .logo-icon {
+        font-size: 1.3rem;
+        color: var(--accent);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 0;
+        margin-left: auto;
+      }
+
+      .nav-links li a {
+        display: block;
+        padding: 0.4rem 0.9rem;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text2);
+        border-radius: 6px;
+        transition:
+          color var(--transition),
+          background var(--transition);
+      }
+
+      .nav-links li a:hover,
+      .nav-links li a.active {
+        color: var(--ch5);
+        background: rgba(52, 213, 143, 0.08);
+      }
+
+      .nav-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text2);
+        font-size: 1.3rem;
+        cursor: pointer;
+        margin-left: auto;
+      }
+
+      .nav-mobile {
+        display: none;
+        flex-direction: column;
+        border-top: 1px solid var(--border);
+        padding: 0.75rem 2rem;
+        gap: 0.25rem;
+      }
+      .nav-mobile.open {
+        display: flex;
+      }
+      .nav-mobile a {
+        padding: 0.6rem 0;
+        font-size: 0.9rem;
+        color: var(--text2);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-mobile a:last-child {
+        border-bottom: none;
+      }
+
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        }
+        .nav-menu-btn {
+          display: block;
+        }
+      }
+
+      /* ===== LAYOUT ===== */
+      .chapter-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        max-width: 1200px;
+        margin: 0 auto;
+        min-height: calc(100vh - 60px);
+      }
+
+      /* ===== SIDEBAR ===== */
+      .sidebar {
+        position: sticky;
+        top: 60px;
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+        border-right: 1px solid var(--border);
+        background: var(--bg2);
+        padding: 2rem 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .sidebar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .sidebar::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 2px;
+      }
+
+      .sidebar-header {
+        padding: 0 1.5rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+      }
+
+      .sidebar-ch {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: var(--ch5);
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 0.3rem;
+      }
+
+      .sidebar-title {
+        display: block;
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .sidebar-nav {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 0 0.75rem;
+        gap: 0.15rem;
+      }
+
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.83rem;
+        color: var(--text2);
+        border-radius: var(--r);
+        transition: all var(--transition);
+        position: relative;
+      }
+
+      .sidebar-link::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 0;
+        background: var(--ch5);
+        border-radius: 2px;
+        transition: height var(--transition);
+      }
+
+      .sidebar-link:hover,
+      .sidebar-link.active {
+        color: var(--text);
+        background: var(--bg3);
+      }
+
+      .sidebar-link.active::before {
+        height: 60%;
+      }
+
+      .sidebar-nav-footer {
+        padding: 1.5rem 1.5rem 0;
+        margin-top: 1rem;
+        border-top: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .sidebar-back,
+      .sidebar-next {
+        font-size: 0.78rem;
+        color: var(--text3);
+        transition: color var(--transition);
+      }
+      .sidebar-back:hover {
+        color: var(--text2);
+      }
+      .sidebar-next {
+        color: var(--ch5);
+        opacity: 0.7;
+      }
+      .sidebar-next:hover {
+        opacity: 1;
+      }
+
+      /* Sidebar mobile toggle */
+      .sidebar-toggle {
+        display: none;
+        position: fixed;
+        bottom: 1.5rem;
+        left: 1.5rem;
+        z-index: 200;
+        background: var(--ch5);
+        color: #0d0f14;
+        border: none;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(52, 213, 143, 0.4);
+      }
+
+      @media (max-width: 900px) {
+        .chapter-layout {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          position: fixed;
+          top: 60px;
+          left: -280px;
+          z-index: 150;
+          width: 260px;
+          transition: left 0.3s ease;
+          box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+        }
+        .sidebar.open {
+          left: 0;
+        }
+        .sidebar-toggle {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+
+      /* ===== MAIN CONTENT ===== */
+      .chapter-main {
+        padding: 0;
+        max-width: 820px;
+      }
+
+      /* ===== CHAPTER HERO ===== */
+      .chapter-hero {
+        padding: 3.5rem 3rem 2.5rem;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+          135deg,
+          var(--bg2),
+          rgba(52, 213, 143, 0.05)
+        );
+      }
+
+      .chapter-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 60% 80% at 90% 50%,
+          rgba(52, 213, 143, 0.06) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+
+      .ch-badge {
+        display: inline-block;
+        padding: 0.25rem 0.8rem;
+        border: 1px solid;
+        border-radius: 99px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        font-family: var(--font-mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+      }
+
+      .ch-title {
+        font-family: var(--font-display);
+        font-size: clamp(1.8rem, 3vw, 2.6rem);
+        font-weight: 900;
+        color: var(--text);
+        line-height: 1.2;
+        margin-bottom: 0.75rem;
+      }
+
+      .ch-desc {
+        font-size: 0.95rem;
+        color: var(--text2);
+        line-height: 1.8;
+        max-width: 600px;
+        margin-bottom: 1.5rem;
+      }
+
+      .ch-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .ch-meta span {
+        font-size: 0.82rem;
+        color: var(--text3);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      /* ===== CONTENT SECTIONS ===== */
+      .content-section {
+        padding: 2.5rem 3rem;
+      }
+
+      .section-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 0 3rem;
+      }
+
+      .section-heading {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .sec-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: rgba(52, 213, 143, 0.12);
+        border: 1px solid rgba(52, 213, 143, 0.25);
+        border-radius: 8px;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--ch5);
+        flex-shrink: 0;
+      }
+
+      .sub-heading {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text);
+        margin: 1.6rem 0 0.8rem;
+        padding-left: 0.75rem;
+        border-left: 3px solid var(--ch5);
+      }
+
+      .content-p {
+        font-size: 0.9rem;
+        color: var(--text2);
+        line-height: 1.85;
+        margin-bottom: 1rem;
+      }
+
+      .content-p code,
+      .content-section code {
+        font-family: var(--font-mono);
+        font-size: 0.82em;
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-radius: 4px;
+        padding: 0.1em 0.4em;
+        color: var(--teal);
+      }
+
+      /* ===== CALLOUTS ===== */
+      .callout {
+        display: flex;
+        gap: 0.9rem;
+        padding: 1rem 1.2rem;
+        border-radius: var(--r);
+        border: 1px solid;
+        margin: 1.2rem 0;
+        font-size: 0.88rem;
+        line-height: 1.7;
+      }
+
+      .callout-icon {
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        padding-top: 0.1rem;
+      }
+      .callout-body {
+        color: var(--text2);
+      }
+      .callout-body strong {
+        color: var(--text);
+      }
+
+      .callout-info {
+        background: rgba(52, 213, 143, 0.06);
+        border-color: rgba(52, 213, 143, 0.2);
+      }
+      .callout-warning {
+        background: rgba(245, 166, 35, 0.06);
+        border-color: rgba(245, 166, 35, 0.2);
+      }
+      .callout-success {
+        background: rgba(52, 213, 143, 0.06);
+        border-color: rgba(52, 213, 143, 0.25);
+      }
+
+      /* ===== ARCH DIAGRAM ===== */
+      .arch-diagram {
+        background: var(--bg2);
+        border: 1px solid var(--border2);
+        border-radius: var(--r-lg);
+        padding: 1.5rem;
+        margin: 1.2rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .arch-row {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+      }
+
+      .arch-box {
+        padding: 0.45rem 0.9rem;
+        border: 1px solid var(--border2);
+        border-radius: var(--r);
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text2);
+        background: var(--bg3);
+        white-space: nowrap;
+      }
+
+      .arch-arrow {
+        font-size: 1rem;
+        color: var(--text3);
+        flex-shrink: 0;
+      }
+
+      .arch-label {
+        font-size: 0.78rem;
+        color: var(--text3);
+        font-style: italic;
+      }
+
+      /* ===== XML TREE ===== */
+      .xml-tree {
+        background: var(--bg2);
+        border: 1px solid var(--border2);
+        border-radius: var(--r);
+        padding: 1.2rem 1.5rem;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 2;
+        margin: 1rem 0;
+      }
+
+      .xt-1 {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .xt-2 {
+        color: var(--ch5);
+        padding-left: 1.2rem;
+      }
+      .xt-3 {
+        color: var(--text2);
+        padding-left: 2.4rem;
+      }
+      .xt-4 {
+        color: var(--teal);
+        padding-left: 3.6rem;
+      }
+
+      /* ===== FLOW INLINE ===== */
+      .flow-inline {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1.5rem;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        margin: 1.2rem 0;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .flow-inline-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .fi-icon {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: var(--bg3);
+        border: 1px solid;
+        border-radius: var(--r);
+      }
+
+      .flow-inline-step p {
+        font-size: 0.78rem;
+        color: var(--text2);
+        text-align: center;
+        font-weight: 500;
+      }
+
+      .fi-arrow {
+        font-size: 1.3rem;
+        color: var(--text3);
+        height: 56px;
+        display: flex;
+        align-items: center;
+      }
+
+      /* ===== TABLES ===== */
+      .table-wrap {
+        overflow-x: auto;
+        margin: 1rem 0;
+        border-radius: var(--r);
+        border: 1px solid var(--border);
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+      }
+
+      .data-table th {
+        background: var(--bg3);
+        color: var(--text2);
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-size: 0.78rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border2);
+      }
+
+      .data-table td {
+        padding: 0.75rem 1rem;
+        color: var(--text2);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .data-table td:first-child {
+        color: var(--text);
+        font-weight: 500;
+      }
+      .data-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+      .data-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .data-table td code {
+        font-family: var(--font-mono);
+        font-size: 0.82em;
+        color: var(--teal);
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-radius: 4px;
+        padding: 0.1em 0.4em;
+      }
+
+      /* ===== CODE BLOCKS ===== */
+      .code-wrap {
+        border-radius: var(--r);
+        overflow: hidden;
+        border: 1px solid var(--border2);
+        margin: 1rem 0;
+      }
+
+      .code-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.55rem 1rem;
+        background: var(--bg3);
+        border-bottom: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        color: var(--text3);
+      }
+
+      .copy-btn {
+        background: var(--bg2);
+        border: 1px solid var(--border2);
+        color: var(--text2);
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all var(--transition);
+      }
+      .copy-btn:hover {
+        background: var(--bg3);
+        color: var(--text);
+      }
+      .copy-btn.copied {
+        color: var(--green);
+        border-color: rgba(52, 213, 143, 0.3);
+      }
+
+      .code-snippet {
+        display: block;
+        padding: 1.2rem 1.4rem;
+        background: var(--bg2);
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.85;
+        overflow-x: auto;
+        color: var(--text);
+        white-space: pre;
+      }
+
+      .code-snippet::-webkit-scrollbar {
+        height: 4px;
+      }
+      .code-snippet::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .code-snippet::-webkit-scrollbar-thumb {
+        background: var(--border2);
+      }
+
+      .c-comment {
+        color: #555e72;
+      }
+      .c-keyword {
+        color: #79aaff;
+      }
+      .c-class {
+        color: #2dd4bf;
+      }
+      .c-string {
+        color: #f5a623;
+      }
+      .c-number {
+        color: #ff9e7a;
+      }
+
+      /* ===== STEPS ===== */
+      .steps-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        margin: 1rem 0;
+        position: relative;
+      }
+
+      .steps-list::before {
+        content: "";
+        position: absolute;
+        left: 19px;
+        top: 36px;
+        bottom: 36px;
+        width: 2px;
+        background: var(--border);
+      }
+
+      .step-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 0;
+        position: relative;
+      }
+
+      .step-num {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        background: var(--bg3);
+        border: 2px solid var(--border2);
+        border-radius: 50%;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--ch5);
+        z-index: 1;
+        transition: all var(--transition);
+      }
+
+      .step-item:hover .step-num {
+        background: rgba(52, 213, 143, 0.15);
+        border-color: var(--ch5);
+      }
+
+      .step-content {
+        flex: 1;
+        padding-top: 0.5rem;
+      }
+
+      .step-content h4 {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 0.4rem;
+      }
+
+      .step-content p {
+        font-size: 0.85rem;
+        color: var(--text2);
+        line-height: 1.75;
+      }
+
+      /* ===== NEXT CHAPTER ===== */
+      .next-chapter {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .next-chapter p {
+        font-size: 0.88rem;
+        color: var(--text2);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.65rem 1.4rem;
+        border-radius: var(--r);
+        font-size: 0.88rem;
+        font-weight: 500;
+        font-family: var(--font-body);
+        cursor: pointer;
+        transition: all var(--transition);
+        border: none;
+      }
+
+      .btn-primary {
+        background: var(--ch5);
+        color: #0d0f14;
+      }
+      .btn-primary:hover {
+        background: #4debb0;
+        transform: translateY(-1px);
+      }
+
+      /* ===== READING PROGRESS ===== */
+      .reading-progress {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        width: 0%;
+        height: 2px;
+        background: linear-gradient(90deg, var(--ch5), var(--teal));
+        z-index: 99;
+        transition: width 0.1s linear;
+      }
+
+      /* ===== FOOTER ===== */
+      .footer {
+        border-top: 1px solid var(--border);
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .footer-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .footer-logo {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text2);
+      }
+
+      .footer-copy {
+        font-size: 0.78rem;
+        color: var(--text3);
+      }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 640px) {
+        .content-section {
+          padding: 2rem 1.5rem;
+        }
+        .chapter-hero {
+          padding: 2.5rem 1.5rem 2rem;
+        }
+        .section-divider {
+          margin: 0 1.5rem;
+        }
+        .arch-diagram {
+          padding: 1rem;
+        }
+        .arch-box {
+          font-size: 0.75rem;
+          padding: 0.35rem 0.65rem;
+        }
+      }
+
+      /* ===== DEMO PANEL (新增的互動測試區塊) ===== */
+      .demo-panel {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 2rem;
+        margin: 2rem 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .demo-panel-title {
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .demo-form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .demo-form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text2);
+        margin-bottom: 0.6rem;
+      }
+
+      .demo-select,
+      .demo-file-input {
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border2);
+        color: var(--text);
+        padding: 0.75rem 1rem;
+        border-radius: var(--r);
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        transition: border-color var(--transition);
+      }
+
+      .demo-select:focus,
+      .demo-file-input:focus {
+        outline: none;
+        border-color: var(--ch5);
+      }
+
+      .demo-radio-group {
+        display: flex;
+        gap: 1.5rem;
+        background: var(--bg);
+        padding: 0.75rem 1rem;
+        border-radius: var(--r);
+        border: 1px solid var(--border2);
+      }
+
+      .demo-radio-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .demo-radio-label input[type="radio"] {
+        accent-color: var(--ch5);
+        cursor: pointer;
+      }
+
+      .demo-submit-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.85rem;
+        font-size: 1rem;
+        margin-top: 0.5rem;
+      }
+
+      .demo-result-box {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        background: var(--bg);
+        border: 1px dashed var(--ch5);
+        border-radius: var(--r);
+        display: none; /* 預設隱藏，點擊後顯示 */
+      }
+
+      .demo-result-box.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .demo-loader {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--ch5);
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+      }
+
+      .custom-file-button {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border2);
+        color: var(--text2);
+        padding: 1rem 1.2rem;
+        border-radius: var(--r);
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all var(--transition);
+      }
+
+      .custom-file-button:hover {
+        border-color: var(--ch5);
+        background: rgba(52, 213, 143, 0.05);
+        color: var(--text);
+      }
+
+      /* 當使用者選好檔案後的樣式（變實線 + 發亮） */
+      .custom-file-button.has-file {
+        border-style: solid;
+        border-color: var(--ch5);
+        color: var(--text);
+        background: rgba(52, 213, 143, 0.08);
+      }
+
+      .file-icon {
+        font-size: 1.2rem;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reading-progress" id="readingProgress"></div>
+
+    <nav class="navbar">
+      <div class="nav-inner">
+        <a href="../index.html" class="nav-logo">
+          <span class="logo-icon">⬡</span>
+          <span class="logo-text">AI MeetingDoc</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="ch1-openai.html">OpenAI API</a></li>
+          <li><a href="ch2-whisper.html">Whisper</a></li>
+          <li><a href="ch3-csharp.html">C# / VS</a></li>
+          <li><a href="ch4-documentxml.html">DocumentXML</a></li>
+          <li><a href="ch5-integration.html" class="active">系統整合</a></li>
+        </ul>
+        <button class="nav-menu-btn" id="menuBtn" aria-label="開啟選單">
+          ☰
+        </button>
+      </div>
+      <div class="nav-mobile" id="mobileMenu">
+        <a href="ch1-openai.html">Ch1 — OpenAI API</a>
+        <a href="ch2-whisper.html">Ch2 — Whisper</a>
+        <a href="ch3-csharp.html">Ch3 — C# / Visual Studio</a>
+        <a href="ch4-documentxml.html">Ch4 — DocumentXML</a>
+        <a href="ch5-integration.html">Ch5 — 系統整合</a>
+      </div>
+    </nav>
+
+    <div class="chapter-layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <span class="sidebar-ch">Chapter 05</span>
+          <span class="sidebar-title">系統整合</span>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="#arch" class="sidebar-link active">系統架構總覽</a>
+          <a href="#text-flow" class="sidebar-link">逐字稿輸入流程</a>
+          <a href="#audio-flow" class="sidebar-link">語音檔輸入流程</a>
+          <a href="#full-code" class="sidebar-link">完整程式碼</a>
+          <a href="#error" class="sidebar-link">錯誤處理</a>
+          <a href="#demo" class="sidebar-link">完整 Demo</a>
+        </nav>
+        <div class="sidebar-nav-footer">
+          <a href="ch4-documentxml.html" class="sidebar-back"
+            >← 上一章：DocumentXML</a
+          >
+          <a href="../index.html" class="sidebar-next">回課程首頁 →</a>
+        </div>
+      </aside>
+
+      <main class="chapter-main" id="mainContent">
+        <div class="chapter-hero">
+          <div
+            class="ch-badge"
+            style="
+              color: var(--ch5);
+              border-color: rgba(52, 213, 143, 0.3);
+              background: rgba(52, 213, 143, 0.08);
+            "
+          >
+            Chapter 05
+          </div>
+          <h1 class="ch-title">系統整合 Demo</h1>
+          <p class="ch-desc">
+            把前四章所有技術整合在一起，完成從語音輸入（或逐字稿輸入）到輸出
+            Word 會議記錄的完整端到端流程。
+          </p>
+          <div class="ch-meta">
+            <span>📖 5 個小節</span>
+            <span>⏱ 約 45 分鐘</span>
+            <span>🏆 最終成果</span>
+          </div>
+        </div>
+
+        <!-- 1. 架構 -->
+        <section class="content-section" id="arch">
+          <h2 class="section-heading">
+            <span class="sec-num">1</span>系統架構總覽
+          </h2>
+          <p class="content-p">
+            本系統接受兩種輸入：<strong>直接貼上逐字稿</strong>或<strong>上傳語音檔</strong>，兩者最終都會走一樣的後半段流程，輸出一份
+            Word 會議記錄。
+          </p>
+
+          <div class="arch-diagram">
+            <div class="arch-row">
+              <div
+                class="arch-box"
+                style="border-color: rgba(79, 158, 255, 0.4); color: var(--ch1)"
+              >
+                🎙 語音檔 (.mp3/.m4a)
+              </div>
+              <div class="arch-arrow">→</div>
+              <div
+                class="arch-box"
+                style="border-color: rgba(45, 212, 191, 0.4); color: var(--ch2)"
+              >
+                Whisper API
+              </div>
+              <div class="arch-arrow">→</div>
+              <div class="arch-box">逐字稿文字</div>
+            </div>
+            <div
+              style="
+                padding-left: 1rem;
+                color: var(--text3);
+                font-size: 0.8rem;
+                margin: -0.2rem 0 0.2rem;
+              "
+            >
+              或
+            </div>
+            <div class="arch-row">
+              <div
+                class="arch-box"
+                style="border-color: rgba(79, 158, 255, 0.4); color: var(--ch1)"
+              >
+                📝 直接輸入逐字稿
+              </div>
+              <div class="arch-arrow" style="visibility: hidden">→</div>
+              <div
+                class="arch-box"
+                style="border-color: transparent; background: transparent"
+              ></div>
+              <div class="arch-arrow" style="visibility: hidden">→</div>
+              <div
+                class="arch-box"
+                style="border-color: transparent; background: transparent"
+              ></div>
+            </div>
+            <div
+              style="
+                border-left: 2px solid var(--border);
+                margin-left: 6rem;
+                padding-left: 1rem;
+                padding-top: 0.25rem;
+              "
+            >
+              <div class="arch-row">
+                <div class="arch-arrow">↓</div>
+                <div class="arch-label">兩種輸入在此匯合</div>
+              </div>
+              <div class="arch-row" style="margin-top: 0.5rem">
+                <div
+                  class="arch-box"
+                  style="
+                    border-color: rgba(245, 166, 35, 0.4);
+                    color: var(--ch3);
+                  "
+                >
+                  ✨ OpenAI GPT-4o-mini
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box">結構化會議記錄</div>
+                <div class="arch-arrow">→</div>
+                <div
+                  class="arch-box"
+                  style="
+                    border-color: rgba(255, 107, 107, 0.4);
+                    color: var(--ch4);
+                  "
+                >
+                  📄 DocumentXML → .docx
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="sub-heading">專案檔案結構</h3>
+          <div class="xml-tree">
+            <div class="xt-1">MeetingDocApp/</div>
+            <div class="xt-2">
+              ├── Program.cs ← 主程式（輸入判斷 + 流程控制）
+            </div>
+            <div class="xt-2">├── Services/</div>
+            <div class="xt-3">│ ├── WhisperService.cs ← Whisper 語音轉文字</div>
+            <div class="xt-3">│ ├── OpenAIService.cs ← GPT 生成會議記錄</div>
+            <div class="xt-3">│ └── DocumentService.cs ← Word 文件輸出</div>
+            <div class="xt-2">├── Models/</div>
+            <div class="xt-3">│ └── MeetingMinutes.cs ← 會議記錄資料結構</div>
+            <div class="xt-2">└── template.dotx ← Word 模板</div>
+          </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 2. 逐字稿流程 -->
+        <section class="content-section" id="text-flow">
+          <h2 class="section-heading">
+            <span class="sec-num">2</span>逐字稿輸入流程
+          </h2>
+          <p class="content-p">
+            當使用者直接提供逐字稿文字時，跳過 Whisper，直接送 OpenAI 整理。
+          </p>
+
+          <div class="flow-inline">
+            <div class="flow-inline-step">
+              <div
+                class="fi-icon"
+                style="border-color: rgba(79, 158, 255, 0.4)"
+              >
+                📝
+              </div>
+              <p>讀取逐字稿<br />文字檔</p>
+            </div>
+            <div class="fi-arrow">→</div>
+            <div class="flow-inline-step">
+              <div
+                class="fi-icon"
+                style="border-color: rgba(245, 166, 35, 0.4)"
+              >
+                ✨
+              </div>
+              <p>GPT 整理<br />成結構</p>
+            </div>
+            <div class="fi-arrow">→</div>
+            <div class="flow-inline-step">
+              <div
+                class="fi-icon"
+                style="border-color: rgba(52, 213, 143, 0.4)"
+              >
+                🔍
+              </div>
+              <p>解析<br />各欄位</p>
+            </div>
+            <div class="fi-arrow">→</div>
+            <div class="flow-inline-step">
+              <div
+                class="fi-icon"
+                style="border-color: rgba(255, 107, 107, 0.4)"
+              >
+                📄
+              </div>
+              <p>填入<br />Word 模板</p>
+            </div>
+          </div>
+
+          <div class="code-wrap">
+            <div class="code-header">
+              <span>C# — 逐字稿輸入流程</span
+              ><button class="copy-btn" data-target="code-text">複製</button>
+            </div>
+            <pre
+              class="code-snippet"
+              id="code-text"
+            ><span class="c-comment">// 1. 讀取逐字稿檔案</span>
+<span class="c-keyword">string</span> transcript = <span class="c-keyword">await</span> File.ReadAllTextAsync(<span class="c-string">"transcript.txt"</span>);
+Console.WriteLine(<span class="c-string">$"✅ 逐字稿讀取完成：{transcript.Length} 字"</span>);
+
+<span class="c-comment">// 2. 送 OpenAI 整理</span>
+<span class="c-keyword">var</span> openAIService = <span class="c-keyword">new</span> <span class="c-class">OpenAIService</span>(apiKey);
+<span class="c-keyword">string</span> minutes = <span class="c-keyword">await</span> openAIService.GenerateMinutesAsync(transcript);
+Console.WriteLine(<span class="c-string">"✅ 會議記錄生成完成"</span>);
+
+<span class="c-comment">// 3. 輸出 Word</span>
+<span class="c-keyword">var</span> docService = <span class="c-keyword">new</span> <span class="c-class">DocumentService</span>();
+docService.BuildDocument(minutes, <span class="c-string">"output.docx"</span>);
+Console.WriteLine(<span class="c-string">"✅ Word 文件已儲存：output.docx"</span>);</pre>
+          </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 3. 語音流程 -->
+        <section class="content-section" id="audio-flow">
+          <h2 class="section-heading">
+            <span class="sec-num">3</span>語音檔輸入流程
+          </h2>
+          <p class="content-p">
+            當使用者提供錄音檔時，先經過 Whisper
+            轉成逐字稿，再走相同的後半段流程。
+          </p>
+
+          <div class="flow-inline">
+            <div class="flow-inline-step">
+              <div
+                class="fi-icon"
+                style="border-color: rgba(45, 212, 191, 0.4)"
+              >
+                🎙
+              </div>
+              <p>讀取<br />音訊檔</p>
+            </div>
+            <div class="fi-arrow">→</div>
+            <div class="flow-inline-step">
+              <div
+                class="fi-icon"
+                style="border-color: rgba(45, 212, 191, 0.4)"
+              >
+                🤖
+              </div>
+              <p>Whisper<br />轉逐字稿</p>
+            </div>
+            <div class="fi-arrow">→</div>
+            <div class="flow-inline-step">
+              <div
+                class="fi-icon"
+                style="border-color: rgba(245, 166, 35, 0.4)"
+              >
+                ✨
+              </div>
+              <p>GPT 整理</p>
+            </div>
+            <div class="fi-arrow">→</div>
+            <div class="flow-inline-step">
+              <div
+                class="fi-icon"
+                style="border-color: rgba(255, 107, 107, 0.4)"
+              >
+                📄
+              </div>
+              <p>輸出<br />Word</p>
+            </div>
+          </div>
+
+          <div class="code-wrap">
+            <div class="code-header">
+              <span>C# — 語音檔輸入流程</span
+              ><button class="copy-btn" data-target="code-audio">複製</button>
+            </div>
+            <pre
+              class="code-snippet"
+              id="code-audio"
+            ><span class="c-comment">// 1. Whisper 語音 → 逐字稿</span>
+<span class="c-keyword">var</span> whisperService = <span class="c-keyword">new</span> <span class="c-class">WhisperService</span>(apiKey);
+<span class="c-keyword">string</span> transcript = <span class="c-keyword">await</span> whisperService.TranscribeAsync(<span class="c-string">"meeting.mp3"</span>);
+Console.WriteLine(<span class="c-string">$"✅ Whisper 轉譯完成：{transcript.Length} 字"</span>);
+
+<span class="c-comment">// 2. 儲存逐字稿（方便後續查閱）</span>
+<span class="c-keyword">await</span> File.WriteAllTextAsync(<span class="c-string">"transcript.txt"</span>, transcript);
+
+<span class="c-comment">// 3. GPT 整理 → Word（與逐字稿流程相同）</span>
+<span class="c-keyword">var</span> openAIService = <span class="c-keyword">new</span> <span class="c-class">OpenAIService</span>(apiKey);
+<span class="c-keyword">string</span> minutes = <span class="c-keyword">await</span> openAIService.GenerateMinutesAsync(transcript);
+
+<span class="c-keyword">var</span> docService = <span class="c-keyword">new</span> <span class="c-class">DocumentService</span>();
+docService.BuildDocument(minutes, <span class="c-string">"output.docx"</span>);
+Console.WriteLine(<span class="c-string">"✅ 完成！檔案儲存於 output.docx"</span>);</pre>
+          </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 4. 完整程式碼 -->
+        <section class="content-section" id="full-code">
+          <h2 class="section-heading">
+            <span class="sec-num">4</span>完整 Program.cs
+          </h2>
+          <p class="content-p">
+            以下是整合兩種輸入模式的主程式，自動判斷輸入類型並執行對應流程：
+          </p>
+
+          <div class="code-wrap">
+            <div class="code-header">
+              <span>C# — Program.cs 完整整合版</span
+              ><button class="copy-btn" data-target="code-main">複製</button>
+            </div>
+            <pre
+              class="code-snippet"
+              id="code-main"
+            ><span class="c-keyword">using</span> OpenAI;
+<span class="c-keyword">using</span> OpenAI.Audio;
+<span class="c-keyword">using</span> OpenAI.Chat;
+<span class="c-keyword">using</span> DocumentFormat.OpenXml;
+<span class="c-keyword">using</span> DocumentFormat.OpenXml.Packaging;
+<span class="c-keyword">using</span> DocumentFormat.OpenXml.Wordprocessing;
+
+<span class="c-keyword">var</span> apiKey = Environment.GetEnvironmentVariable(<span class="c-string">"OPENAI_API_KEY"</span>)
+    ?? <span class="c-keyword">throw new</span> <span class="c-class">Exception</span>(<span class="c-string">"請先設定 OPENAI_API_KEY 環境變數"</span>);
+
+<span class="c-comment">// ======= 輸入設定 =======</span>
+<span class="c-keyword">string</span> inputFile  = <span class="c-string">"meeting.mp3"</span>;  <span class="c-comment">// 或 "transcript.txt"</span>
+<span class="c-keyword">string</span> outputFile = <span class="c-string">"output.docx"</span>;
+<span class="c-keyword">bool</span>   isAudio    = inputFile.EndsWith(<span class="c-string">".mp3"</span>) || inputFile.EndsWith(<span class="c-string">".m4a"</span>)
+                   || inputFile.EndsWith(<span class="c-string">".wav"</span>) || inputFile.EndsWith(<span class="c-string">".mp4"</span>);
+
+<span class="c-comment">// ======= Step 1: 取得逐字稿 =======</span>
+<span class="c-keyword">string</span> transcript;
+<span class="c-keyword">if</span> (isAudio)
+{
+    Console.WriteLine(<span class="c-string">"🎙 語音檔偵測到，正在呼叫 Whisper..."</span>);
+    <span class="c-keyword">var</span> audioClient = <span class="c-keyword">new</span> <span class="c-class">AudioClient</span>(<span class="c-string">"whisper-1"</span>, apiKey);
+    <span class="c-keyword">using var</span> stream = File.OpenRead(inputFile);
+    <span class="c-keyword">var</span> result = <span class="c-keyword">await</span> audioClient.TranscribeAudioAsync(
+        stream, inputFile,
+        <span class="c-keyword">new</span> <span class="c-class">AudioTranscriptionOptions</span> { Language = <span class="c-string">"zh"</span> }
+    );
+    transcript = result.Text;
+    Console.WriteLine(<span class="c-string">$"✅ Whisper 完成：{transcript.Length} 字"</span>);
+}
+<span class="c-keyword">else</span>
+{
+    Console.WriteLine(<span class="c-string">"📝 讀取逐字稿檔案..."</span>);
+    transcript = <span class="c-keyword">await</span> File.ReadAllTextAsync(inputFile);
+    Console.WriteLine(<span class="c-string">$"✅ 逐字稿讀取完成：{transcript.Length} 字"</span>);
+}
+
+<span class="c-comment">// ======= Step 2: GPT 生成會議記錄 =======</span>
+Console.WriteLine(<span class="c-string">"✨ 正在生成會議記錄..."</span>);
+<span class="c-keyword">var</span> chatClient = <span class="c-keyword">new</span> <span class="c-class">ChatClient</span>(<span class="c-string">"gpt-4o-mini"</span>, apiKey);
+<span class="c-keyword">var</span> systemPrompt = <span class="c-string">"""
+    你是專業會議記錄整理助理，請依以下格式輸出，嚴格遵守格式，不要加入額外說明：
+    【會議主題】：
+    【日期時間】：
+    【出席人員】：
+    【討論事項】：
+    【結論與決議】：
+    【待辦事項】（表格格式：負責人|項目|截止日）：
+    """</span>;
+
+<span class="c-keyword">var</span> messages = <span class="c-keyword">new</span>[] {
+    <span class="c-keyword">new</span> <span class="c-class">SystemChatMessage</span>(systemPrompt),
+    <span class="c-keyword">new</span> <span class="c-class">UserChatMessage</span>(transcript)
+};
+<span class="c-keyword">var</span> completion = <span class="c-keyword">await</span> chatClient.CompleteChatAsync(
+    messages,
+    <span class="c-keyword">new</span> <span class="c-class">ChatCompletionOptions</span> { MaxOutputTokenCount = <span class="c-number">2000</span> }
+);
+<span class="c-keyword">string</span> minutes = completion.Content[<span class="c-number">0</span>].Text;
+Console.WriteLine(<span class="c-string">"✅ 會議記錄生成完成"</span>);
+
+<span class="c-comment">// ======= Step 3: 輸出 Word 文件 =======</span>
+Console.WriteLine(<span class="c-string">"📄 正在建立 Word 文件..."</span>);
+File.Copy(<span class="c-string">"template.dotx"</span>, outputFile, overwrite: <span class="c-keyword">true</span>);
+
+<span class="c-keyword">using var</span> doc = <span class="c-class">WordprocessingDocument</span>.Open(outputFile, <span class="c-keyword">true</span>);
+doc.ChangeDocumentType(<span class="c-class">WordprocessingDocumentType</span>.Document);
+<span class="c-keyword">var</span> body = doc.MainDocumentPart!.Document.Body!;
+body.RemoveAllChildren&lt;<span class="c-class">Paragraph</span>&gt;();
+
+<span class="c-comment">// 將會議記錄逐行填入</span>
+<span class="c-keyword">foreach</span> (<span class="c-keyword">var</span> line <span class="c-keyword">in</span> minutes.Split(<span class="c-string">'\n'</span>))
+{
+    <span class="c-keyword">var</span> isBold = line.StartsWith(<span class="c-string">"【"</span>);
+    <span class="c-keyword">var</span> para = <span class="c-keyword">new</span> <span class="c-class">Paragraph</span>();
+    <span class="c-keyword">var</span> run  = <span class="c-keyword">new</span> <span class="c-class">Run</span>();
+    <span class="c-keyword">if</span> (isBold) run.AppendChild(<span class="c-keyword">new</span> <span class="c-class">RunProperties</span>(<span class="c-keyword">new</span> <span class="c-class">Bold</span>()));
+    run.AppendChild(<span class="c-keyword">new</span> <span class="c-class">Text</span>(line) { Space = <span class="c-class">SpaceProcessingModeValues</span>.Preserve });
+    para.AppendChild(run);
+    body.AppendChild(para);
+}
+
+doc.MainDocumentPart.Document.Save();
+Console.WriteLine(<span class="c-string">$"🎉 完成！會議記錄已儲存至：{outputFile}"</span>);</pre>
+          </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 5. 錯誤處理 -->
+        <section class="content-section" id="error">
+          <h2 class="section-heading">
+            <span class="sec-num">5</span>常見錯誤處理
+          </h2>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>錯誤訊息</th>
+                  <th>原因</th>
+                  <th>解決方式</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>401 Unauthorized</code></td>
+                  <td>API Key 錯誤或未設定</td>
+                  <td>確認環境變數 <code>OPENAI_API_KEY</code> 正確設定</td>
+                </tr>
+                <tr>
+                  <td><code>429 Rate Limit</code></td>
+                  <td>請求太頻繁或餘額不足</td>
+                  <td>等待幾秒後重試，或檢查 OpenAI 帳號餘額</td>
+                </tr>
+                <tr>
+                  <td><code>File too large</code></td>
+                  <td>音訊檔超過 25MB</td>
+                  <td>用 FFmpeg 壓縮音訊至 25MB 以下</td>
+                </tr>
+                <tr>
+                  <td><code>InvalidOperationException</code></td>
+                  <td>Word 模板路徑錯誤</td>
+                  <td>確認 <code>template.dotx</code> 在執行目錄下</td>
+                </tr>
+                <tr>
+                  <td>輸出空白 Word 文件</td>
+                  <td>GPT 回傳空字串</td>
+                  <td>確認逐字稿不是空的，並檢查 Prompt 是否正確</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="sub-heading">加入 try-catch 保護</h3>
+          <div class="code-wrap">
+            <div class="code-header">
+              <span>C# — 錯誤處理範例</span
+              ><button class="copy-btn" data-target="code-err">複製</button>
+            </div>
+            <pre
+              class="code-snippet"
+              id="code-err"
+            ><span class="c-keyword">try</span>
+{
+    <span class="c-keyword">var</span> result = <span class="c-keyword">await</span> chatClient.CompleteChatAsync(messages);
+    <span class="c-keyword">string</span> minutes = result.Content[<span class="c-number">0</span>].Text;
+    <span class="c-keyword">if</span> (<span class="c-keyword">string</span>.IsNullOrWhiteSpace(minutes))
+        <span class="c-keyword">throw new</span> <span class="c-class">Exception</span>(<span class="c-string">"AI 回傳空白內容，請檢查逐字稿"</span>);
+}
+<span class="c-keyword">catch</span> (<span class="c-class">Exception</span> ex)
+{
+    Console.WriteLine(<span class="c-string">$"❌ 錯誤：{ex.Message}"</span>);
+    <span class="c-comment">// 寫入 log 檔案方便除錯</span>
+    <span class="c-keyword">await</span> File.AppendAllTextAsync(<span class="c-string">"error.log"</span>,
+        <span class="c-string">$"{DateTime.Now}: {ex}\n"</span>);
+}</pre>
+          </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 6. Demo -->
+        <section class="content-section" id="demo">
+          <h2 class="section-heading">
+            <span class="sec-num">6</span>完整 Demo 步驟
+          </h2>
+          <p class="content-p">按照以下步驟，從頭到尾跑一次完整流程：</p>
+
+          <div class="steps-list">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h4>準備輸入檔案</h4>
+                <p>
+                  準備一個 MP3 錄音檔
+                  <code>meeting.mp3</code>，或一個逐字稿文字檔
+                  <code>transcript.txt</code
+                  >，放在專案的執行目錄下（<code>bin/Debug/net8.0/</code>）。
+                </p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h4>確認環境變數</h4>
+                <p>
+                  確認 <code>OPENAI_API_KEY</code> 已正確設定，在 PowerShell
+                  執行：
+                </p>
+                <div class="code-wrap" style="margin-top: 0.5rem">
+                  <pre class="code-snippet">echo $env:OPENAI_API_KEY
+<span class="c-comment"># 應該顯示 sk-proj-xxx...</span></pre>
+                </div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h4>在 Program.cs 設定輸入檔名</h4>
+                <p>
+                  修改 <code>inputFile</code> 變數為你的檔案名稱，確認
+                  <code>isAudio</code> 判斷正確。
+                </p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <h4>執行程式（F5 或 Ctrl+F5）</h4>
+                <p>觀察主控台輸出，依序看到：</p>
+                <div class="code-wrap" style="margin-top: 0.5rem">
+                  <pre class="code-snippet">
+🎙 語音檔偵測到，正在呼叫 Whisper...
+✅ Whisper 完成：3214 字
+✨ 正在生成會議記錄...
+✅ 會議記錄生成完成
+📄 正在建立 Word 文件...
+🎉 完成！會議記錄已儲存至：output.docx</pre
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">5</div>
+              <div class="step-content">
+                <h4>開啟 output.docx 確認結果</h4>
+                <p>
+                  用 Word 或 LibreOffice 開啟輸出的
+                  <code>output.docx</code>，確認會議記錄內容正確、格式整齊。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout callout-success" style="margin-top: 2rem">
+            <div class="callout-icon">🎉</div>
+            <div class="callout-body">
+              <strong>恭喜完成所有章節！</strong><br />
+              你已經掌握了 OpenAI API、Whisper 語音辨識、C#
+              開發環境、DocumentXML
+              文件生成，以及如何把這四項技術整合成一個完整的 AI
+              會議記錄助手系統。
+            </div>
+          </div>
+          <!---123 --->
+          <div class="next-chapter" style="margin-top: 2rem">
+            <p>想回顧任何章節？</p>
+            <a href="../index.html" class="btn btn-primary">← 回課程首頁</a>
+          </div>
+        </section>
+        <div class="demo-panel">
+          <div class="demo-form-group">
+            <label>會議情境模式 (ScenarioMode)</label>
+            <select id="scenarioMode" class="demo-select">
+              <option value="專案規劃">專案規劃</option>
+              <option value="技術開發">技術開發</option>
+              <option value="業務會議">業務會議</option>
+            </select>
+          </div>
+
+          <!-- <div class="demo-form-group">
+            <label>選擇開發/處理方式</label>
+            <select id="devMethod" class="demo-select">
+              <option value="dotnet_api">.NET Core Web API (雲端 OpenAI 處理)</option>
+              <option value="local_whisper">本地端 Whisper 運算 (離線處理)</option>
+            </select>
+          </div> -->
+
+          <div class="demo-form-group">
+            <label>輸入來源</label>
+            <div class="demo-radio-group">
+              <label class="demo-radio-label">
+                <input type="radio" name="inputType" value="audio" checked /> 🎙
+                錄音檔 (.mp3, .m4a)
+              </label>
+              <label class="demo-radio-label">
+                <input type="radio" name="inputType" value="text" /> 📝 逐字稿
+                (.txt)
+              </label>
+            </div>
+          </div>
+
+          <div class="demo-form-group">
+            <label>上傳檔案</label>
+            <div class="custom-file-wrapper">
+              <input
+                type="file"
+                id="fileInput"
+                accept=".mp3,.m4a,.wav"
+                style="display: none"
+              />
+
+              <label for="fileInput" id="fileLabel" class="custom-file-button">
+                <span class="file-icon">📁</span>
+                <span id="fileName">點擊選擇檔案 (或將檔案拖曳至此)</span>
+              </label>
+            </div>
+          </div>
+
+          <button id="generateBtn" class="btn btn-primary demo-submit-btn">
+            傳送至後端生成會議紀錄
+          </button>
+
+          <div id="resultBox" class="demo-result-box">
+            <div id="loader" class="demo-loader">
+              <span>⏳ 正在呼叫 .NET Core API 處理中...</span>
+            </div>
+            <div
+              id="resultContent"
+              style="
+                display: none;
+                color: var(--text2);
+                font-size: 0.9rem;
+                line-height: 1.8;
+              "
+            >
+              <strong
+                style="
+                  color: var(--text);
+                  display: block;
+                  margin-bottom: 0.5rem;
+                "
+                >✅ 會議紀錄生成成功！</strong
+              >
+              [API 串接預留位置]<br />
+              等後端 C# 寫好並提供 RESTful API 後，這裡就會透過 fetch()
+              取得真實的 Word 檔案下載連結或 JSON 資料。
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <span class="footer-logo">⬡ AI MeetingDoc</span>
+        <span class="footer-copy">AI 會議記錄助手技術教學平台</span>
+      </div>
+    </footer>
+
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="開啟側邊欄">
+      ☰
+    </button>
+
+    <script>
+      // Mobile navbar menu
+      document.getElementById("menuBtn").addEventListener("click", () => {
+        document.getElementById("mobileMenu").classList.toggle("open");
+      });
+
+      // Sidebar mobile toggle
+      document.getElementById("sidebarToggle").addEventListener("click", () => {
+        document.getElementById("sidebar").classList.toggle("open");
+      });
+
+      // Active sidebar link on scroll
+      const sections = document.querySelectorAll("section[id]");
+      const sidebarLinks = document.querySelectorAll(".sidebar-link");
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              sidebarLinks.forEach((l) => l.classList.remove("active"));
+              const active = document.querySelector(
+                `.sidebar-link[href="#${entry.target.id}"]`,
+              );
+              if (active) active.classList.add("active");
+            }
+          });
+        },
+        { rootMargin: "-20% 0px -70% 0px" },
+      );
+
+      sections.forEach((s) => observer.observe(s));
+
+      // Reading progress bar
+      const progressBar = document.getElementById("readingProgress");
+      window.addEventListener("scroll", () => {
+        const main = document.getElementById("mainContent");
+        const scrollTop = window.scrollY;
+        const docHeight = main.scrollHeight - window.innerHeight;
+        const pct = Math.min((scrollTop / docHeight) * 100, 100);
+        progressBar.style.width = pct + "%";
+      });
+
+      // Copy buttons
+      document.querySelectorAll(".copy-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.dataset.target;
+          const target = document.getElementById(targetId);
+          if (!target) return;
+          navigator.clipboard.writeText(target.innerText).then(() => {
+            btn.textContent = "已複製！";
+            btn.classList.add("copied");
+            setTimeout(() => {
+              btn.textContent = "複製";
+              btn.classList.remove("copied");
+            }, 2000);
+          });
+        });
+      });
+
+      // ===== Demo Panel 互動邏輯 (對接 FileStream 回傳) =====
+      const inputTypeRadios = document.querySelectorAll(
+        'input[name="inputType"]',
+      );
+      const fileInput = document.getElementById("fileInput");
+      const generateBtn = document.getElementById("generateBtn");
+      const resultBox = document.getElementById("resultBox");
+      const loader = document.getElementById("loader");
+      const resultContent = document.getElementById("resultContent");
+
+      // 根據選擇的輸入來源，動態切換上傳檔案的限制類型
+      inputTypeRadios.forEach((radio) => {
+        radio.addEventListener("change", (e) => {
+          if (e.target.value === "audio") {
+            fileInput.accept = ".mp3,.m4a,.wav";
+          } else {
+            fileInput.accept = ".txt";
+          }
+        });
+      });
+
+      const fileNameDisplay = document.getElementById("fileName");
+      const fileLabel = document.getElementById("fileLabel");
+
+      fileInput.addEventListener("change", function () {
+        if (this.files && this.files.length > 0) {
+          // 如果有選檔案，顯示檔名並加上高亮樣式
+          fileNameDisplay.textContent = this.files[0].name;
+          fileLabel.classList.add("has-file");
+        } else {
+          // 如果取消選擇，恢復預設文字與樣式
+          fileNameDisplay.textContent = "點擊選擇檔案 (或將檔案拖曳至此)";
+          fileLabel.classList.remove("has-file");
+        }
+      });
+
+      // 點擊送出至 API
+      generateBtn.addEventListener("click", async () => {
+        if (!fileInput.files.length) {
+          alert("請先選擇要上傳的檔案！");
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const scenarioMode = document.getElementById("scenarioMode").value;
+
+        // 1. 顯示 Loading 狀態與結果區塊
+        resultBox.classList.add("active");
+        loader.style.display = "flex";
+        resultContent.style.display = "none";
+        generateBtn.disabled = true;
+        generateBtn.style.opacity = "0.5";
+
+        // 2. 準備要傳送的 FormData (欄位名稱需與 C# MeetingRequest 屬性一致)
+        const formData = new FormData();
+        formData.append("File", file);
+        formData.append("ScenarioMode", scenarioMode);
+
+        try {
+          // 3. 呼叫 .NET Core Web API
+          // ※ 記得將 localhost 的 Port 改成你實際執行後端時的 Port
+          const response = await fetch(
+            "https://localhost:7294/api/Meeting/process",
+            {
+              method: "POST",
+              body: formData,
+            },
+          );
+
+          if (!response.ok) {
+            // 嘗試解析後端 BadRequest 傳回的 JSON 錯誤訊息 (例如 { Message: "..." })
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(
+              errorData.Message ||
+                `伺服器處理錯誤 (狀態碼: ${response.status})`,
+            );
+          }
+
+          // 4. 解析回傳的二進位檔案資料 (Blob)
+          const blob = await response.blob();
+
+          // 5. 建立前端虛擬的下載連結
+          const downloadUrl = window.URL.createObjectURL(blob);
+
+          // 嘗試從 Header 取得後端設定的檔名 (如果跨域 CORS 沒開可能會抓不到，提供預設檔名)
+          let filename = `AI_會議紀錄報告_${new Date().getTime()}.docx`;
+          const disposition = response.headers.get("Content-Disposition");
+
+          if (disposition && disposition.includes("attachment")) {
+            // 優先嘗試抓取 UTF-8 編碼的中文檔名 (通常格式為 filename*=UTF-8''檔名)
+            if (disposition.includes("filename*=")) {
+              const utf8Filename = disposition
+                .split("filename*=UTF-8''")[1]
+                .split(";")[0];
+              filename = decodeURIComponent(utf8Filename);
+            } else {
+              // 備用：傳統的 filename= 抓取邏輯
+              const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+              const matches = filenameRegex.exec(disposition);
+              if (matches != null && matches[1]) {
+                filename = decodeURIComponent(matches[1].replace(/['"]/g, ""));
+              }
+            }
+          }
+
+          // 6. 隱藏 Loader，顯示成功結果
+          loader.style.display = "none";
+          resultContent.style.display = "block";
+
+          // 顯示按鈕，讓使用者點擊觸發下載剛接回來的 Blob
+          resultContent.innerHTML = `
+      <strong style="color: var(--text); display: block; margin-bottom: 0.5rem;">✅ 會議紀錄生成成功！</strong>
+      <p style="margin-bottom: 1rem;">API 處理完成。檔案已準備就緒：<strong>${filename}</strong></p>
+      <a href="${downloadUrl}" download="${filename}" class="btn btn-primary">📥 儲存 Word 檔案</a>
+    `;
+
+          // (選擇性) 自動觸發下載：
+          // const a = document.createElement('a');
+          // a.href = downloadUrl;
+          // a.download = filename;
+          // document.body.appendChild(a);
+          // a.click();
+          // document.body.removeChild(a);
+        } catch (error) {
+          console.error("API 呼叫失敗:", error);
+          loader.style.display = "none";
+          resultContent.style.display = "block";
+          resultContent.innerHTML = `
+      <strong style="color: var(--coral); display: block;">❌ 生成失敗</strong>
+      <p>${error.message}</p>
+      <p style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--text3);">請確認 .NET 伺服器是否已啟動，並檢查 VS 的 Log 輸出。</p>
+    `;
+        } finally {
+          generateBtn.disabled = false;
+          generateBtn.style.opacity = "1";
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+﻿# 忽略建置產物
+bin/
+obj/
+
+# 忽略 VS 設定
+.vs/
+*.user
+*.suo
+
+# 忽略系統檔案
+.DS_Store
+Thumbs.db
