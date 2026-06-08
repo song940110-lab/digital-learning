@@ -37,16 +37,28 @@ namespace WebApplication2.Services
             return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<string> GenerateSummaryAsync(string transcript, string scenarioMode)
+        public async Task<string> GenerateSummaryAsync(string transcript, string scenarioMode, string? glossary = null)
         {
             string todayStr = DateTime.Now.ToString("yyyy/MM/dd");
             // 新增：把明年的年份也算出來給它
             string nextYear = DateTime.Now.AddYears(1).ToString("yyyy");
 
+            string glossaryPrompt = string.IsNullOrWhiteSpace(glossary) ? ""
+        : $"重要背景知識 (RAG 增強)：本次會議可能會頻繁出現以下專有名詞、人名或術語，請優先使用這些詞彙進行語意辨識與校正：{glossary}\n";
+
             string systemPrompt = $@"
 你是一個具備高適應力的專業會議助理。目前的會議情境與組織類型為：【{scenarioMode}】。
 本次會議召開的當天日期為：【{todayStr}】。
 請根據使用者提供的會議逐字稿，嚴格依據文件內容進行分析（絕不加入任何外推或虛構情節），並依據以下結構整理。
+
+
+【初步內容檢核 (極重要防呆機制)】：
+請先判斷使用者提供的逐字稿是否真的是一場「會議」、「對話」或「有意義的口述」。
+如果內容充滿無意義的狀聲詞（如嬰兒哭聲、環境雜音、純音樂），或是字數過少且無具體意義，
+請你立刻停止生成會議紀錄，並「只」回傳以下這句錯誤提示（不要包含任何其他格式）：
+「系統攔截：偵測到輸入內容為非會議音訊（如環境音、雜音或無意義內容），無法生成有效報告。
+
+如果檢核通過，請嚴格依據以下結構整理：
 
 【重要排版與邏輯規範】：
 1. 嚴格禁止使用任何 Markdown 區塊包裝符號（如 ``` 或 ```markdown）。
@@ -81,18 +93,22 @@ namespace WebApplication2.Services
 根據上述未解決事項或後續延伸任務，為下一次會議規劃 2-3 個建議討論的具體議題
 ";
 
-            var requestBody = CreateChatPayload(systemPrompt, transcript, 0.2f);
+            var requestBody = CreateChatPayload(systemPrompt, transcript, 0.0f);
             string summaryResult = await SendChatCompletionAsync(requestBody);
 
             // 暴力淨化：雙重確保絕對不會有中括號出現
             return summaryResult.Replace("[", "").Replace("]", "");
         }
 
-        public async Task<string> ExtractActionItemsCsvAsync(string transcript, string scenarioMode)
+        public async Task<string> ExtractActionItemsCsvAsync(string transcript, string scenarioMode, string? glossary = null)
         {
             string todayStr = DateTime.Now.ToString("yyyy/MM/dd");
             string currentYear = DateTime.Now.ToString("yyyy");
             string nextYear = DateTime.Now.AddYears(1).ToString("yyyy"); // 抓出明年的年份備用
+
+            string glossaryPrompt = string.IsNullOrWhiteSpace(glossary) ? ""
+: $"重要背景知識 (RAG 增強)：本次會議可能會頻繁出現以下專有名詞、人名或術語，請優先使用這些詞彙進行語意辨識與校正：{glossary}\n";
+
 
             string systemPrompt = $@"
 你是一個專業的會議數據分析助理。目前的會議情境為：【{scenarioMode}】。
@@ -119,7 +135,7 @@ namespace WebApplication2.Services
 - 絕對不要在任何欄位使用中括號「[]」。
 ";
 
-            var requestBody = CreateChatPayload(systemPrompt, transcript, 0.1f);
+            var requestBody = CreateChatPayload(systemPrompt, transcript, 0.0f);
             string rawResult = await SendChatCompletionAsync(requestBody);
             return CleanMarkdownWrapper(rawResult);
         }

@@ -66,8 +66,8 @@ namespace WebApplication2.Controllers
                 }
 
                 _logger.LogInformation("啟動 GPT-4o-mini 推理引擎進行雙軌摘要擷取與任務提取...");
-                var summaryTask = _aiService.GenerateSummaryAsync(transcript, request.ScenarioMode);
-                var actionItemsTask = _aiService.ExtractActionItemsCsvAsync(transcript, request.ScenarioMode);
+                var summaryTask = _aiService.GenerateSummaryAsync(transcript, request.ScenarioMode, request.Glossary);
+                var actionItemsTask = _aiService.ExtractActionItemsCsvAsync(transcript, request.ScenarioMode, request.Glossary);
 
                 await Task.WhenAll(summaryTask, actionItemsTask);
 
