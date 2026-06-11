@@ -92,5 +92,54 @@ namespace WebApplication2.Controllers
                 return StatusCode(500, new { Message = $"伺服器內部處理失敗: {ex.Message}" });
             }
         }
+
+        [HttpPost("AnalyzeRisk")]
+        public async Task<IActionResult> AnalyzeRiskAsync([FromBody] RiskAnalysisRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.Content))
+            {
+                return BadRequest(new { Message = "請提供有效的會議摘要與任務狀態內容。" });
+            }
+
+            try
+            {
+                _logger.LogInformation("--- 接收到風險分析請求 ---");
+
+                string jsonResult = await _aiService.AnalyzeRiskAsync(request.Content);
+
+                // 直接回傳 JSON 字串給前端
+                return Content(jsonResult, "application/json");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "執行風險分析時發生錯誤。");
+                return StatusCode(500, new { Message = $"伺服器內部處理失敗: {ex.Message}" });
+            }
+        }
+
+        //  新增 API：通知生成端點
+        [HttpPost("GenerateNotification")]
+        public async Task<IActionResult> GenerateNotificationAsync([FromBody] NotificationRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.Summary))
+            {
+                return BadRequest(new { Message = "請提供有效的會議摘要內容。" });
+            }
+
+            try
+            {
+                _logger.LogInformation("--- 接收到會議通知生成請求 ---");
+
+                string jsonResult = await _aiService.GenerateNotificationAsync(request.Summary);
+
+                // 直接回傳 JSON 字串給前端
+                return Content(jsonResult, "application/json");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "執行會議通知生成時發生錯誤。");
+                return StatusCode(500, new { Message = $"伺服器內部處理失敗: {ex.Message}" });
+            }
+        }
     }
 }

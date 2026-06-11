@@ -8,6 +8,8 @@ namespace WebApplication2.Services
         Task<string> GenerateTranscriptFromAudioAsync(byte[] audioBytes, string fileName);
         Task<string> GenerateSummaryAsync(string transcript, string scenarioMode, string? glossary = null);
         Task<string> ExtractActionItemsCsvAsync(string transcript, string scenarioMode, string? glossary = null);
+        Task<string> AnalyzeRiskAsync(string content);
+        Task<string> GenerateNotificationAsync(string summary);
     }
 
     public interface IDocumentService

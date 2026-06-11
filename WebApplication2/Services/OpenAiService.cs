@@ -194,8 +194,69 @@ owner：提取被指派者或承諾者的姓名或身分（如：王經理、陳
             return CleanMarkdownWrapper(rawResult);
         }
 
-        private object CreateChatPayload(string systemMessage, string userMessage, float temperature)
+        public async Task<string> AnalyzeRiskAsync(string content)
         {
+            string systemPrompt = @"
+你是一個專業的專案風險分析 AI。請分析使用者提供的會議摘要與任務狀態。
+你必須以 JSON 格式回應，且格式必須為包含 'risks' 陣列的物件：
+{
+  ""risks"": [
+    {
+      ""icon"": ""⚠️"",
+      ""type"": ""進度風險|責任風險|溝通風險|期限風險"",
+      ""title"": ""風險標題 (20字內)"",
+      ""desc"": ""詳細描述 (50字內)"",
+      ""suggestion"": ""改善建議 (40字內)"",
+      ""level"": ""high|mid|low"",
+      ""score"": 0到100的分數
+    }
+  ]
+}
+請絕對不要輸出任何非 JSON 的文字。";
+
+            // 注意這裡傳入 true 啟用 JSON 模式
+            var requestBody = CreateChatPayload(systemPrompt, content, 0.3f, true);
+            return await SendChatCompletionAsync(requestBody);
+        }
+
+        // 新增：通知生成實作
+        public async Task<string> GenerateNotificationAsync(string summary)
+        {
+            string systemPrompt = @"
+你是會議通知撰寫 AI，使用繁體中文，文字活潑清楚。
+根據會議摘要，生成三種格式的通知文字。
+你必須以 JSON 格式回應，格式如下：
+{
+  ""group"": ""LINE/Slack 群組通知版（簡短活潑，可用 emoji）"",
+  ""email"": ""Email 正文（正式完整，包含問候語、摘要、待辦事項、結語）"",
+  ""remind"": ""個人任務提醒（逐人列出任務與截止日，格式化條列）"",
+  ""subject"": ""Email 主旨""
+}
+請絕對不要輸出任何非 JSON 的文字。";
+
+            // 通知生成需要創意，temperature 設為 0.7f，傳入 true 啟用 JSON 模式
+            var requestBody = CreateChatPayload(systemPrompt, summary, 0.7f, true);
+            return await SendChatCompletionAsync(requestBody);
+        }
+
+        private object CreateChatPayload(string systemMessage, string userMessage, float temperature, bool isJsonFormat = false)
+        {
+            if (isJsonFormat)
+            {
+                return new
+                {
+                    model = ChatModel,
+                    messages = new[]
+                    {
+                        new { role = "system", content = systemMessage },
+                        new { role = "user", content = userMessage }
+                    },
+                    temperature = temperature,
+                    max_tokens = 2048,
+                    response_format = new { type = "json_object" } // 強制啟用 JSON 模式
+                };
+            }
+
             return new
             {
                 model = ChatModel,
